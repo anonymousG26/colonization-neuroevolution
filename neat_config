@@ -1,0 +1,119 @@
+[NEAT]
+fitness_criterion = max
+fitness_threshold = 100
+pop_size = 150
+reset_on_extinction = false
+no_fitness_termination = true
+
+[HebbianRecurrentGenome]
+# Node activation options
+activation_default = sigmoid
+activation_mutate_rate = 0.0
+activation_options = sigmoid clamped tanh
+
+# Node aggregation options
+aggregation_default = sum
+aggregation_mutate_rate = 0.0
+aggregation_options = sum
+
+# Node bias options
+bias_init_type = gaussian
+bias_init_mean = 0.0
+bias_init_stdev = 1.0
+bias_max_value = 5.0
+bias_min_value = -5.0
+bias_mutate_power = 0.5
+bias_mutate_rate = 0.1
+bias_replace_rate = 0
+
+# Genome compatibility options
+compatibility_disjoint_coefficient = 1
+compatibility_weight_coefficient = 1
+
+# Connection add/remove rates
+conn_add_prob = 0.5
+conn_delete_prob = 0.5
+
+# Connection enable options
+enabled_default = true
+enabled_mutate_rate = 0
+enabled_rate_to_true_add = 0.0
+enabled_rate_to_false_add = 0.0
+
+feed_forward = false
+initial_connection = partial_nodirect 0.5
+#initial_connection = fs_neat_nohidden
+
+# Node add/remove rates
+node_add_prob = 0.5
+node_delete_prob = 0.5
+
+# Network parameters
+num_hidden = 0
+num_inputs = 149
+num_outputs = 5
+
+# Node response options
+response_init_type = gaussian
+response_init_mean = 1.0
+response_init_stdev = 0.0
+response_max_value = 30.0
+response_min_value = -30.0
+response_mutate_power = 0.0
+response_mutate_rate = 0.0
+response_replace_rate = 0.0
+
+# Connection weight options
+weight_init_type = gaussian
+#weight_init_type = uniform
+weight_init_mean = 0.0
+weight_init_stdev = 1.0
+weight_max_value = 5.0
+weight_min_value = -5.0
+weight_mutate_power = 0.25
+weight_mutate_rate = 0.25
+weight_replace_rate = 0.01
+
+# Learning rate (lr) config for each connection
+lr_init_type = gaussian
+lr_init_mean = 0.05
+lr_init_stdev = 0.02
+lr_max_value = 1.0
+lr_min_value = 0.0001
+lr_mutate_power = 0.02
+lr_mutate_rate = 0.3
+lr_replace_rate = 0.0
+edecay_init_type = gaussian
+edecay_init_mean = 0.5
+edecay_init_stdev = 0.12
+edecay_max_value = 1.0
+edecay_min_value = 0.05
+edecay_mutate_power = 0.05
+edecay_mutate_rate = 0.2
+edecay_replace_rate = 0.0
+decay_init_type = gaussian
+decay_init_mean = 0.0
+decay_init_stdev = 0.00001
+decay_max_value = 0.0001
+decay_min_value = 0.0
+decay_mutate_power = 0.00001
+decay_mutate_rate = 0.0
+decay_replace_rate = 0.0
+
+structural_mutation_surer = true
+single_structural_mutation = true
+
+[DefaultSpeciesSet]
+compatibility_threshold = 3
+
+[CustomStagnation]
+species_fitness_func = max
+max_stagnation = 15
+species_elitism = 2
+
+[CustomReproduction]
+#min_species_size = 5
+min_species_size = 1
+#elitism = 2
+elitism = 1
+survival_threshold = 0.5
