@@ -134,7 +134,15 @@ def evaluate_(genome, config, learn=True, n_trials=100, skip_evaluated=True, n_s
     return mean_episode_reward, net
 
 def run(config_file='neat_config', parallel=True, wandb_run=None, restore=False, checkpoint_file="neat-checkpoint-0", n_seasons=4, 
-        seed=1361, n_gens=1, energy_costs=True, n_procs=3, n_trials=100, learn=True, randcol=True):
+        seed=1361, n_gens=1, energy_costs=True, n_procs=3, n_trials=100, learn=True, randcol=False, unpredictable=False, transition=None):
+
+    print("run transition: ", transition)
+    if transition is not None:
+        n_seasons = 1
+    if unpredictable and transition is None:
+        randcol = True
+    else:
+        randcol = False
 
     if restore:
         p = neat.Checkpointer.restore_checkpoint(checkpoint_file)
@@ -165,49 +173,25 @@ def run(config_file='neat_config', parallel=True, wandb_run=None, restore=False,
         pe = ParallelEvaluator(n_procs, evaluate, timeout=600, n_seasons=n_seasons, seed=seed, energy_costs=energy_costs, n_trials=n_trials, learn=learn, randcol=randcol)
         gen_start = p.generation
         print("gen start: ", gen_start)
-        #pe.seed = seed+350
 
     best_fitness = 0
     for generation in range(gen_start, n_gens):
 
         if parallel:
             try:
-                #if generation == 50:
-                    #pe.randcol=True
-                '''                                  
-                if generation == 200:
-                    #pe.randcol=True
+                if generation == 200 and transition == "sudden":
                     pe.n_seasons = 4
-                    #pe.randcol = True
-                    best_fitness = 0
-                '''
-                '''
-                elif generation == 200:
-                    pe.n_seasons = 3
-                    best_fitness = 0
-                
-                elif generation == 300:
-                    pe.n_seasons = 4
-                    best_fitness = 0
-                '''
-                '''
-                elif generation == 800:
-                    pe.n_seasons = 2
-                    best_fitness = 0
-                elif generation == 1000:
-                    pe.n_seasons = 3
-                    best_fitness = 0
-                elif generation == 1200:
-                    pe.n_seasons = 4
-                    best_fitness = 0
-                '''
-                #gen_best = p.run(pe.evaluate, 1)
-                if generation%50==0:#gen_best.fitness > gen_best.mean_perf + 1:#best_fitness: #generation%25==0:
-                #if True:
+                    if unpredictable:
+                        pe.randcol=True
+                elif generation % 100 == 0 and generation > 0 and transition == "gradual" and pe.n_seasons < 4:
+                    pe.n_seasons += 1
+                    if unpredictable and not pe.randcol:
+                        pe.randcol=True
+                print("n_seasons: ", pe.n_seasons)
+                print("randcol: ", pe.randcol)
+                if generation%50==0:
                     pe.gen = generation
-                    #if generation%5==0:
                     pe.seed = seed+generation
-                    #best_fitness += 1 #= gen_best.fitness
                 gen_best = p.run(pe.evaluate, 1)
                 w_min, w_max, w_mean, w_stdev = gen_best.net.get_weight_stats()
             except Exception as e:
@@ -260,15 +244,25 @@ if __name__ == '__main__':
                         help='seed value')
 
     # n_seasons argument
-    parser.add_argument('--n_seasons', type=int, default=4,
-                        help='Number of seasons in environment')
+    #parser.add_argument('--n_seasons', type=int, default=4,
+    #                    help='Number of seasons in environment')
 
     # n_gens argument
     parser.add_argument('--n_gens', type=int, default=1,
                         help='Number of Generations')
 
+
+    # unpredictable argument
+    parser.add_argument('--unpredictable', action='store_true', help="Make seasonal changes unpredictable (default: predictable / False)")
+
+    # transition argument
+    parser.add_argument('--transition', type=str, default=None,
+                        choices=['sudden', 'gradual'],
+                        help='Transition type: "sudden" or "gradual"; default is None (no transition)')
+
+
     # EC argument
-    parser.add_argument('--no_EC', action='store_false', help="remove energy costs that scale with ANN size")
+    #parser.add_argument('--no_EC', action='store_false', help="remove energy costs that scale with ANN size")
 
     # n_procs argument
     parser.add_argument('--n_procs', type=int, default=3, 
@@ -278,8 +272,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     print("Argument values:")
     print("seed: ", args.seed)
-    print("n_seasons: ", args.n_seasons)
     print("Generations: ", args.n_gens)
-    print("Energy Costs: ", args.no_EC)
+    print("Unpredictable changes: ", args.unpredictable)
+    print("Transition: ", args.transition)
+    #print("Energy Costs: ", args.no_EC)
                         
-    run(n_seasons=args.n_seasons, seed=args.seed, n_gens=args.n_gens, energy_costs=args.no_EC, n_procs=args.n_procs)
+    run(seed=args.seed, n_gens=args.n_gens, n_procs=args.n_procs, unpredictable=args.unpredictable, transition=args.transition)
